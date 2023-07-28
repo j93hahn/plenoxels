@@ -3,3 +3,6 @@ __pycache__/
 *$py.class
 Session.vim
 ckpt/
+svox2.egg-info/
+.eggs/
+.vscode/
