@@ -3,6 +3,10 @@ __pycache__/
 *$py.class
 Session.vim
 ckpt/
+.vscode/
+
+# CUDA extension
 svox2.egg-info/
 .eggs/
-.vscode/
+build/
+svox2/csrc.cpython-38-x86_64-linux-gnu.so
