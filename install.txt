@@ -1,0 +1,7 @@
+install plenoxels conda env with following commands [completed]:
+
+conda create -n plenoxels python=3.8.12 # 3.8.8 is too old
+conda install -c "nvidia/label/cuda-11.8.0" cuda-toolkit
+conda install pytorch torchvision pytorch-cuda=11.8 gcc_linux-64 gxx_linux-64 cmake -c pytorch -c nvidia
+pip install tqdm imageio imageio-ffmpeg ipdb lpips opencv-python>=4.4.0 Pillow>=7.2.0 pyyaml>=5.3.1 tensorboard>=2.4.0 imageio imageio-ffmpeg pymcubes moviepy matplotlib scipy>=1.6.0
+pip install -e . --verbose
