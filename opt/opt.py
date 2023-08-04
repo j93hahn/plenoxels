@@ -661,6 +661,7 @@ while True:
 
     if gstep_id_base >= args.n_iters:
         print('* Final eval and save')
+        epoch_id += 1   # update epoch_id for final eval
         eval_step()
         global_stop_time = datetime.now()
         secs = (global_stop_time - global_start_time).total_seconds()
