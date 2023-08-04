@@ -28,6 +28,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from tqdm import tqdm
 from typing import NamedTuple, Optional, Union
+from fabric.utils.event import EventStorage, get_event_storage
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -243,6 +244,9 @@ group.add_argument('--n_train', type=int, default=None, help='Number of training
 
 group.add_argument('--nosphereinit', action='store_true', default=False,
                      help='do not start with sphere bounds (please do not use for 360)')
+
+group.add_argument('--distance_scale', type=float, default=1.0,
+                     help='scale the distance to the object by this factor')
 
 args = parser.parse_args()
 config_util.maybe_merge_config_file(args)
@@ -466,12 +470,15 @@ while True:
                         stats_test[stat_name], global_step=gstep_id_base)
             summary_writer.add_scalar('epoch_id', float(epoch_id), global_step=gstep_id_base)
             print('eval stats:', stats_test)
+            with open('stats.txt', 'a') as f:
+                f.write(f'eval epoch {epoch_id} stats: psnr={stats_test["psnr"]:.4f}, mse={stats_test["mse"]:.4f}\n')
     if epoch_id % max(factor, args.eval_every) == 0: #and (epoch_id > 0 or not args.tune_mode):
         # NOTE: we do an eval sanity check, if not in tune_mode
         eval_step()
         gc.collect()
 
     def train_step():
+        metric: EventStorage = get_event_storage()
         print('Train step')
         pbar = tqdm(enumerate(range(0, epoch_size, args.batch_size)), total=batches_per_epoch)
         stats = {"mse" : 0.0, "psnr" : 0.0, "invsqr_mse" : 0.0}
@@ -510,6 +517,9 @@ while True:
             stats['mse'] += mse_num
             stats['psnr'] += psnr
             stats['invsqr_mse'] += 1.0 / mse_num ** 2
+
+            metric.put_scalars(psnr=psnr, mse=mse_num)
+            metric.step()
 
             if (iter_id + 1) % args.print_every == 0:
                 # Print averaged stats
@@ -602,7 +612,9 @@ while True:
                     optim_basis_mlp.step()
                     optim_basis_mlp.zero_grad()
 
-    train_step()
+    # capture training data here
+    with EventStorage(f"train_psnr/epoch_{epoch_id + 1}"):
+        train_step()
     gc.collect()
     gstep_id_base += batches_per_epoch
 
