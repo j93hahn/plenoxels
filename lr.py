@@ -92,7 +92,7 @@ def compare_all_lr_schedulers():
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.10), fancybox=True, shadow=True, ncol=2, prop={'size': 6})
-    plt.savefig('lr_all.png', dpi=300)
+    plt.savefig('lr_all.pdf', dpi=300)
 
 
 _ALL_SIGMA_LR_SCHEDULERS = [
@@ -142,9 +142,9 @@ def compare_sigma_lr_schedulers():
     ax.minorticks_off()
     ax.set_xlabel('iteration')
     ax.set_ylabel('σ learning rate value (log scale)')
-    plt.savefig('lr_sigma.png', dpi=300)
+    plt.savefig('lr_sigma.pdf', dpi=300)
 
 
 if __name__ == '__main__':
-    # compare_all_lr_schedulers()
+    compare_all_lr_schedulers()
     compare_sigma_lr_schedulers()
