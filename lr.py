@@ -47,11 +47,11 @@ plt.rcParams["font.family"] = "STIXGeneral"
 
 def compare_all_lr_schedulers():
     # use default values from opt/opt.py
-    lr_sigma_func = get_expon_lr_func(3e1, 5e-2, 15000, 1e-2, 250000)
-    lr_sh_func = get_expon_lr_func(1e-2, 5e-6, 0, 1e-2, 250000)
-    lr_basis_func = get_expon_lr_func(1e-6, 1e-6, 0, 1e-2, 250000)
-    lr_sigma_bg_func = get_expon_lr_func(3e0, 3e-3, 0, 1e-2, 250000)
-    lr_color_bg_func = get_expon_lr_func(1e-1, 5e-6, 0, 1e-2, 250000)
+    lr_sigma_func = get_expon_lr_func(15000, 3e1, 5e-2, 1e-2, 250000)
+    lr_sh_func = get_expon_lr_func(0, 1e-2, 5e-6, 1e-2, 250000)
+    lr_basis_func = get_expon_lr_func(0, 1e-6, 1e-6, 1e-2, 250000)
+    lr_sigma_bg_func = get_expon_lr_func(0, 3e0, 3e-3, 1e-2, 250000)
+    lr_color_bg_func = get_expon_lr_func(0, 1e-1, 5e-6, 1e-2, 250000)
 
     iters = 128000
     lr_sigmas = np.zeros(iters)
@@ -70,20 +70,28 @@ def compare_all_lr_schedulers():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(xs, lr_sigmas, label='sigma')
-    ax.plot(xs, lr_shs, label='sh')
-    ax.plot(xs, lr_bases, label='basis')
-    ax.plot(xs, lr_sigma_bgs, label='sigma_bg')
-    ax.plot(xs, lr_color_bgs, label='color_bg')
+    ax.plot(xs, lr_sigmas, label='σ foreground', markevery=[0,-1], marker='1', markersize=7.0)
+    ax.plot(xs, lr_sigma_bgs, label='σ background', markevery=[0,-1], marker='1', markersize=7.0)
+    ax.plot(xs, lr_color_bgs, label='color background', markevery=[0,-1], marker='1', markersize=7.0)
+    ax.plot(xs, lr_shs, label='spherical harmonics', markevery=[0,-1], marker='1', markersize=7.0)
+    ax.plot(xs, lr_bases, label='basis', markevery=[0,-1], marker='1', markersize=7.0)
+
+    ax.set_yscale('log')
+    ax.minorticks_off()
+    ax.set_xlabel('iteration')
+    ax.set_ylabel('learning rate value (log scale)')
+
+    ax.tick_params(direction='in', axis='both', width=0.5, color='black', length=4, labelsize=10.0)
+    ax.yaxis.grid(True, which='both', linewidth=0.5, color='lightgray')
+
+    sns.despine()
+    for spine in ax.spines.values():
+        spine.set_linewidth(0.5)
+        spine.set_color('black')
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-
-    ax.set_yscale('log')
-    ax.set_title('Learning rate functions for plenoxels')
-    ax.set_xlabel('Iteration')
-    ax.set_ylabel('Learning rate value')
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=5)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.10), fancybox=True, shadow=True, ncol=2, prop={'size': 6})
     plt.savefig('lr_all.png', dpi=300)
 
 
@@ -107,7 +115,12 @@ def compare_sigma_lr_schedulers():
         xs = np.arange(iters)
         for i in range(iters):
             sigmas[i] = func(i)
-        ax.plot(xs, sigmas, label=f'params: [{str(params[0])}, {mapping[str(params[1])]}, {mapping[str(params[2])]}]', linewidth=1.0, linestyle=color[str(params[0])], color=color[str(params[1])])
+        ax.plot(xs, sigmas, label=f'params: [{str(params[0])}, {mapping[str(params[1])]}, {mapping[str(params[2])]}]',
+                linewidth=1.0, linestyle=color[str(params[0])], color=color[str(params[1])],
+                markevery=[14999], marker='4', markersize=7.0, markerfacecolor=color[str(params[1])], zorder=10)
+
+    _, y_max = ax.get_ylim()
+    plt.plot([14999, 14999], [0, y_max], color='black', linestyle='--', linewidth=0.5, zorder=0)
 
     ax.tick_params(direction='in', axis='both', width=0.5, color='black', length=4, labelsize=10.0)
     ax.yaxis.grid(True, which='both', linewidth=0.5, color='lightgray')
@@ -119,9 +132,11 @@ def compare_sigma_lr_schedulers():
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.10), fancybox=True, shadow=True, ncol=2, prop={'size': 6})
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.10), fancybox=True, shadow=True, ncol=2, prop={'size': 6}, markerscale=0)
 
-    ax.text(3000, 3, "plenoxels default", fontsize=7.0)
+    ax.annotate('plenoxels default', xy=(4000, 10), xycoords='data', xytext=(3000, 3), textcoords='data',
+                size=7.0, va='center', ha='left', bbox=dict(facecolor='white', edgecolor='white', pad=0.7),
+                arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0.3', color='black', linewidth=0.8))
 
     ax.set_yscale('log')
     ax.minorticks_off()
