@@ -43,6 +43,7 @@ color = {
 
 
 plt.rcParams["font.family"] = "STIXGeneral"
+plt.rcParams.update({'font.size': 12})
 
 
 def compare_all_lr_schedulers():
@@ -68,8 +69,8 @@ def compare_all_lr_schedulers():
         lr_sigma_bgs[i] = lr_sigma_bg_func(i)
         lr_color_bgs[i] = lr_color_bg_func(i)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
+    fig.set_figheight(5)
     ax.plot(xs, lr_sigmas, label='σ foreground', markevery=[0,-1], marker='1', markersize=7.0)
     ax.plot(xs, lr_sigma_bgs, label='σ background', markevery=[0,-1], marker='1', markersize=7.0)
     ax.plot(xs, lr_color_bgs, label='color background', markevery=[0,-1], marker='1', markersize=7.0)
@@ -81,7 +82,7 @@ def compare_all_lr_schedulers():
     ax.set_xlabel('iteration')
     ax.set_ylabel('learning rate value (log scale)')
 
-    ax.tick_params(direction='in', axis='both', width=0.5, color='black', length=4, labelsize=10.0)
+    ax.tick_params(direction='in', axis='both', width=0.5, color='black', length=4, labelsize=12.0)
     ax.yaxis.grid(True, which='both', linewidth=0.5, color='lightgray')
 
     sns.despine()
@@ -90,9 +91,9 @@ def compare_all_lr_schedulers():
         spine.set_color('black')
 
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.10), fancybox=True, shadow=True, ncol=2, prop={'size': 6})
-    plt.savefig('lr_all.pdf', dpi=300)
+    ax.set_position([box.x0, box.y0 + box.height * 0.2, box.width, box.height * 0.8])
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.13), fancybox=True, shadow=True, ncol=2, prop={'size': 12})
+    plt.savefig('lr_all.pdf', dpi=300, bbox_inches='tight')
 
 
 _ALL_SIGMA_LR_SCHEDULERS = [
@@ -108,6 +109,7 @@ _ALL_SIGMA_LR_SCHEDULERS = [
 
 def compare_sigma_lr_schedulers():
     fig, ax = plt.subplots()
+    fig.set_figheight(5)
     iters = 128000
     for params in _ALL_SIGMA_LR_SCHEDULERS:
         func = get_expon_lr_func(*params, 1e-2, 250000)
@@ -117,12 +119,12 @@ def compare_sigma_lr_schedulers():
             sigmas[i] = func(i)
         ax.plot(xs, sigmas, label=f'params: [{str(params[0])}, {mapping[str(params[1])]}, {mapping[str(params[2])]}]',
                 linewidth=1.0, linestyle=color[str(params[0])], color=color[str(params[1])],
-                markevery=[14999], marker='4', markersize=7.0, markerfacecolor=color[str(params[1])], zorder=10)
+                markevery=[14999], marker='4', markersize=12.0, markerfacecolor=color[str(params[1])], zorder=10)
 
     _, y_max = ax.get_ylim()
     plt.plot([14999, 14999], [0, y_max], color='black', linestyle='--', linewidth=0.5, zorder=0)
 
-    ax.tick_params(direction='in', axis='both', width=0.5, color='black', length=4, labelsize=10.0)
+    ax.tick_params(direction='in', axis='both', width=0.5, color='black', length=4, labelsize=12.0)
     ax.yaxis.grid(True, which='both', linewidth=0.5, color='lightgray')
 
     sns.despine()
@@ -131,18 +133,18 @@ def compare_sigma_lr_schedulers():
         spine.set_color('black')
 
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.10), fancybox=True, shadow=True, ncol=2, prop={'size': 6}, markerscale=0)
+    ax.set_position([box.x0, box.y0 + box.height * 0.2, box.width, box.height * 0.8])
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.13), fancybox=True, shadow=True, ncol=2, prop={'size': 12}, markerscale=0)
 
     ax.annotate('plenoxels default', xy=(4000, 10), xycoords='data', xytext=(3000, 3), textcoords='data',
-                size=7.0, va='center', ha='left', bbox=dict(facecolor='white', edgecolor='white', pad=0.7),
+                size=12.0, va='center', ha='left', bbox=dict(facecolor='white', edgecolor='white', pad=0.7),
                 arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0.3', color='black', linewidth=0.8))
 
     ax.set_yscale('log')
     ax.minorticks_off()
     ax.set_xlabel('iteration')
     ax.set_ylabel('σ learning rate value (log scale)')
-    plt.savefig('lr_sigma.pdf', dpi=300)
+    plt.savefig('lr_sigma.pdf', dpi=300, bbox_inches='tight')
 
 
 if __name__ == '__main__':
