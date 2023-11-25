@@ -247,6 +247,8 @@ group.add_argument('--nosphereinit', action='store_true', default=False,
 
 group.add_argument('--distance_scale', type=float, default=1.0,
                      help='scale the distance to the object by this factor')
+group.add_argument('--use_density_shift', type=int, default=0,
+                     help='initialize the sigma coefficients with high initialization heuristic')
 
 args = parser.parse_args()
 config_util.maybe_merge_config_file(args)
@@ -294,6 +296,7 @@ grid = svox2.SparseGrid(reso=reso_list[reso_id],
                         use_z_order=True,
                         device=device,
                         distance_scale=args.distance_scale,
+                        use_density_shift=args.use_density_shift,
                         basis_reso=args.basis_reso,
                         basis_type=svox2.__dict__['BASIS_TYPE_' + args.basis_type.upper()],
                         mlp_posenc_size=args.mlp_posenc_size,

@@ -367,6 +367,8 @@ class SparseGrid(nn.Module):
         background_nlayers : int = 0,  # BG MSI layers
         background_reso : int = 256,  # BG MSI cubemap face size
         device: Union[torch.device, str] = "cpu",
+        distance_scale: float = 1.0,
+        use_density_shift: int = 0,
     ):
         super().__init__()
         self.basis_type = basis_type
@@ -446,9 +448,20 @@ class SparseGrid(nn.Module):
         else:
             self.capacity = n3
 
-        self.density_data = nn.Parameter(
-            torch.zeros(self.capacity, 1, dtype=torch.float32, device=device)
-        )
+        if use_density_shift == 1:
+            density_shift = torch.log(torch.log(torch.tensor(1 / 0.99))) - torch.log(torch.tensor(4 * distance_scale))
+            self.density_data = nn.Parameter(
+                torch.ones(self.capacity, 1, dtype=torch.float32, device=device) * density_shift,
+                requires_grad=True,
+            )
+            print(f"using density shift {density_shift} at distance_scale {distance_scale}")
+        else:
+            self.density_data = nn.Parameter(
+                torch.zeros(self.capacity, 1, dtype=torch.float32, device=device),
+                requires_grad=True,
+            )
+            print("not using density shift")
+
         # Called sh for legacy reasons, but it's just the coeffients for whatever
         # spherical basis functions
         self.sh_data = nn.Parameter(
