@@ -242,5 +242,3 @@ with torch.no_grad():
     if not args.no_vid and len(frames):
         vid_path = render_dir + '.mp4'
         imageio.mimwrite(vid_path, frames, fps=args.fps, macro_block_size=8)  # pip install imageio-ffmpeg
-
-
