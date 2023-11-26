@@ -124,6 +124,9 @@ struct RenderOptions {
 
   bool last_sample_opaque;
 
+  float density_offset;
+  float distance_scale;
+
   // bool randomize;
   // float random_sigma_std;
   // float random_sigma_std_background;
